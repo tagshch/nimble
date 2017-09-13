@@ -27,7 +27,9 @@ var worker = function(state){
 
 var informer = function(state){
     return ({
-        status: function(){ console.log(state.name, state); }
+        status: function(){
+            console.log(state.name, state);
+        }
     });
 };
 
@@ -65,19 +67,19 @@ var Kano = new drivingWorker('Kano');
 var John = new plainWorker('John');
 
 var libraryConstructor = {
-    "name": "test1_library",
+    "name": "ex3_library",
     "instances":[
         {
-            "name":"Kano",
+            "name":"KanoObj",
             "code": Kano,
-            "comment": "This is Kano",
-            "export": "KanoExport"
+            "comment": "This is Kano comment!",
+            "export": "KanoExportName"
         },
         {
-            "name":"John",
+            "name":"JohnObj",
             "code": John,
-            "comment": "This is John",
-            "export": "JohnExport"
+            "comment": "This is John comment!",
+            "export": "JohnExportName"
         }
     ],
     "path": "./results"

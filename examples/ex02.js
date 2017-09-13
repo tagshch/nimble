@@ -1,4 +1,5 @@
-const nimbloid = require('./nimbloid.js');
+
+const nimbloid = require('../nimbloid.js');
 
 var Test = {
     burn: function(){
@@ -10,16 +11,16 @@ var Test = {
 };
 
 var libraryConstructor = {
-    "name": "test2_library",
+    "name": "ex02_library",
     "instances":[
         {
             "name":"Toster",
             "code": Test,
+            "type": "type_object",
             "comment": "This is Toster!",
             "export": "TosterExport"
         }
-    ],
-    "path": "./results"
+    ]
 };
 
 var library = nimbloid.generate(libraryConstructor);
