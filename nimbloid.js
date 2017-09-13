@@ -63,7 +63,7 @@ var nimbloid = {
 
         instances.forEach(function(instance, index){
             code += `\n/* ${instance.comment} */\n`;
-            code += `\nlet ${instance.name} = {${generateObject(instance.code)}};\n`;
+            code += handler.process(instance);
 
             if(instance['export']){
                 moduleExport += `    ${instance.export} : ${instance.name}`;
@@ -85,54 +85,69 @@ var nimbloid = {
 
 // --- HELPERS ---
 
-function generateObject(obj){
+var handler = {
+    process: function(instance){
+        switch (instance.type){
+            case "type_function":
+                return handler.stringify._function(instance);
 
-    let str = '\n';
-    let props = Object.keys(obj);
-    let prop = null;
-    let isLastProp = null;
+            case "type_object":
+                return handler.stringify._object(instance);
 
-    for(let i = 0; i < props.length; i++){
+            default:
+                return "\n";
+        }
+    },
+    stringify:{
+        _object: function(instance){
+            let obj = instance.code;
+            let str = '\n';
+            let props = Object.keys(obj);
+            let prop = null;
+            let isLastProp = null;
 
-        prop = props[i];
-        isLastProp = (i == (props.length - 1));
+            for(let i = 0; i < props.length; i++){
 
-        if(typeof obj[prop] == 'object') {
-            str += '\n' + prop + ': {\n' + generateObject(obj[prop]);
-            str += isLastProp ? '}\n' : '},\n';
-        } else if(typeof obj[prop] == 'function'){
-            str += '\t' + prop + ': ' + obj[prop].toString();
-            str += isLastProp ? '\n' : ',\n';
-        } else {
-            str += prop + ': ' + obj[prop];
-            str += isLastProp ? '\n' : ',\n';
+                prop = props[i];
+                isLastProp = (i == (props.length - 1));
+
+                if(typeof obj[prop] == 'object') {
+                    str += '\n' + prop + ': {\n' + generateObject(obj[prop]);
+                    str += isLastProp ? '}\n' : '},\n';
+                } else if(typeof obj[prop] == 'function'){
+                    str += '\t' + prop + ': ' + obj[prop].toString();
+                    str += isLastProp ? '\n' : ',\n';
+                } else {
+                    str += prop + ': ' + obj[prop];
+                    str += isLastProp ? '\n' : ',\n';
+                }
+            }
+
+            return `\nlet ${instance.name} = {${str}};\n`;
+        },
+        _function: function(instance){
+            return instance.code.toString();
+        }
+    },
+    parse: {
+        _function: function(str){
+            let args = str.substring(0, str.indexOf(')'));
+            args = args.substring(str.indexOf('(') + 1).trim().split(',');
+
+            let code = str.substring(str.indexOf('{') + 1, str.lastIndexOf('}')).trim();
+
+            return new Function(args, code);
+        },
+        _object: function(obj){
+            return JSON.parse(obj, (key, value)=>{
+                if(typeof value === 'string'){
+                    return parseFunction(value);
+                }
+                return value;
+            });
         }
     }
-
-    return str;
-}
-
-function generateFunction(func){
-
-}
-
-function parseFunction (str) {
-    let args = str.substring(0, str.indexOf(')'));
-    args = args.substring(str.indexOf('(') + 1).trim().split(',');
-
-    let code = str.substring(str.indexOf('{') + 1, str.lastIndexOf('}')).trim();
-
-    return new Function(args, code);
-}
-
-function parseObject(obj) {
-    return JSON.parse(obj, (key, value)=>{
-        if(typeof value === 'string'){
-            return parseFunction(value);
-        }
-        return value;
-    });
-}
+};
 
 function generateTemplateFunction(template) {
 
