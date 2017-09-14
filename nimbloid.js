@@ -81,18 +81,16 @@ var nimbloid = {
     }
 };
 
-//@TODO - REFACTOR HELPERS
+// --- MAKE CODE TO STRING ---
 
-// --- HELPERS ---
-
-var handler = {
+var maker = {
     process: function(instance){
         switch (instance.type){
             case "type_function":
-                return handler.stringify._function(instance);
+                return maker.stringify._function(instance);
 
             case "type_object":
-                return handler.stringify._object(instance);
+                return maker.stringify._object(instance);
 
             default:
                 return "\n";
